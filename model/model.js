@@ -1,6 +1,10 @@
 var mongodbclient = require("mongodb").MongoClient
-var url= "mongodb://localhost:27017"
-var dbname="finally"
+var url= "mongodb://47.94.108.20:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+var dbname="BuptCreation"
+
+// var url="mongodb://localhost:27017"
+// var dbname="finally"
+
 
 function connect(callback) {
     mongodbclient.connect(url,function (err,client) {
