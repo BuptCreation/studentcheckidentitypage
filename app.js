@@ -299,30 +299,6 @@ var server=ws.createServer(function (conn) {
                 }
             })
         })
-    }else if(data.type==="catchtextno"){
-        var groupno=null;
-        model.connect(function (db,client) {
-            console.log(data.studentno);
-            db.collection("buptgroup").find({studentname:data.studentno }).toArray(function (err,ret) {
-                if(err){
-                    console.log("查找失败!");
-                }else{
-                    groupno=ret[0].groupid;
-                    db.collection("mapping").find({groupno:""+groupno}).toArray(function (err,ret) {
-                        if(err){
-                            console.log("查找文章列表出现了一些小意外呢!");
-                        }else{
-                            let textnos=[];
-                            ret.map(function (item,index) {
-                                textnos.push(item.textno);
-                            })
-                            console.log(textnos)
-                            conn.sendText(JSON.stringify({textnos:textnos}));
-                        }
-                    })
-                }
-            })
-        })
     }
   })              //对接收到的字符串进行相应的处理
 
@@ -336,4 +312,46 @@ var server=ws.createServer(function (conn) {
 
 }).listen(3335)
 
+
+var server2=ws.createServer(function (connect) {
+
+    connect.on("text",function (str) {
+        var data=JSON.parse(str);
+        if(data.type==="catchtextno"){
+            var groupno=null;
+            model.connect(function (db,client) {
+                console.log(data.studentno);
+                db.collection("buptgroup").find({studentname:data.studentno }).toArray(function (err,ret) {
+                    if(err){
+                        console.log("查找失败!");
+                    }else{
+                        groupno=ret[0].groupid;
+                        db.collection("mapping").find({groupno:""+groupno}).toArray(function (err,ret) {
+                            if(err){
+                                console.log("查找文章列表出现了一些小意外呢!");
+                            }else{
+                                let textnos=[];
+                                ret.map(function (item,index) {
+                                    textnos.push(item.textno);
+                                })
+                                console.log(textnos)
+                                connect.sendText(JSON.stringify({textnos:textnos}));
+                            }
+                        })
+                    }
+                })
+            })
+        }
+    })
+
+    connect.on("err",function (err) {
+        console.log("出现了错误！",err)
+
+    })
+    connect.on("close",function () {
+        console.log("断开了连接!")
+    })
+
+}).listen("3336");
 console.log("listening at port 3335")
+console.log("listening at port 3336")
